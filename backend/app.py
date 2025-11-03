@@ -7,7 +7,15 @@ def create_app():
     app.config.from_object(LocalConfig)
     db.init_app(app)
     datastore = SQLAlchemyUserDatastore(db , User ,  Role)
-    app.security =  Security(app , datastore = datastore)
+    app.security =  Security(app , datastore = datastore , register_blueprint = False)
+    @app.security.unauthn_handler
+    def unauthn_handler( mechanisms=None, headers=None):
+        print(mechanisms)
+        return {"message" : "Auth required"} , 401
+    
+    @app.security.unauthz_handler
+    def unauthz_handler( func , params):
+        return {"message" : "You do not have access to this resource"} , 403
     app.app_context().push()
     return app
 

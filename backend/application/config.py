@@ -4,3 +4,4 @@ class LocalConfig:
     SECURITY_TOKEN_AUTHENTICATION_HEADER = "Authentication-Token"
     SECURITY_PASSWORD_HASH = "bcrypt"
     SECURITY_PASSWORD_SALT = "thisissalt"
+    SECRET_KEY = "supersecretkey"
