@@ -3,7 +3,7 @@ from application.models import db , User ,Role
 from application.config import LocalConfig
 from flask_security import Security,SQLAlchemyUserDatastore
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__ , template_folder = "../frontend_cdn" , static_folder="../frontend_cdn")
     app.config.from_object(LocalConfig)
     db.init_app(app)
     datastore = SQLAlchemyUserDatastore(db , User ,  Role)

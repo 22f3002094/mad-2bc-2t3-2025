@@ -1,5 +1,5 @@
 from flask import current_app as app
-from .models import db
+from .models import *
 from flask_security import hash_password 
 
 with app.app_context():
@@ -11,6 +11,13 @@ with app.app_context():
         datastore.create_user(name = "Himanshu" , email="h@gmail.com" , password = hash_password("pass"),roles = ["Admin"])
     db.session.commit()
 
+    if Subject.query.count() ==0 :
+        subjects = [
+            Subject(name="Python" , description = "xyz") , 
+            Subject(name = "Math" , description = "dfsdg")
+        ]
+        db.session.add_all(subjects)
+        db.session.commit()
     print("initial data is created")
 
 
