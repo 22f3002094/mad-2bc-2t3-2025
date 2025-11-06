@@ -17,15 +17,15 @@ def login():
         password = request.json.get("password")
         user = User.query.filter_by(email=email).first()
         if not email or not password:
-            return "Email and Password required" , 400
+            return {"message" :"Email and Password required" }, 400
         elif user is None:
-            return "User not found" , 404
+            return {"message" :"User not found" }  , 404
         elif  verify_password(password , user.password)  == False:
-            return "Invalid password" , 401
+            return {"message":"Invalid password" }, 401
         else:
             token = user.get_auth_token()
             print("Generated Token :" , token)
-            return {"name" :user.name , "token" : token , "message" :"Login Successful"} , 200
+            return {"name" :user.name , "token" : token , "message" : "Login Successful!!"} , 200
     else :
         return "hello world"
     
@@ -43,10 +43,10 @@ def register():
         email = request.json.get("email")
         password = request.json.get("password")
         if not name or not email or not password:
-            return "Name , Email and Password required" , 400
+            return   {"message" :"Name , Email and Password required"} , 400
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return "User with this email already exists" , 409
+            return  {"message" : "User with this email already exists"} , 409
         else:
             datastore = app.security.datastore
             datastore.create_user( name = name , email=email , password = hash_password(password),roles = ["Student"])

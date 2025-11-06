@@ -1,15 +1,16 @@
-import HomeComp from "./homecomp.js"
 
+import router from "./route.js"
 new Vue({
     el: '#app',
     template:
     `
-    <HomeComp></HomeComp>
+    <div>
+        <router-view></router-view>
+    </div>
+    
     `,
     data:{
         appname : "Quizmaster"
     } ,
-    components:{
-         HomeComp
-    }
+    router: router
 })

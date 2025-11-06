@@ -11,7 +11,18 @@ export default({
         </div>
         
     </div>
-
-
     `
+    data(){
+        return {
+            greeting: "Welcome to Quizmaster"
+        }
+    },
+    mounted(){
+        console.log("Home component mounted")
+    },
+    methods: {
+       greet(){
+        console.log(this.greeting)
+       }
+    }
 })
