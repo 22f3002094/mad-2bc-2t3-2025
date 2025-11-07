@@ -71,11 +71,19 @@ export default {
           else if (response.status == 200) {
             localStorage.setItem("token", data.token)
             localStorage.setItem("name", data.name)
+            localStorage.setItem("role", data.role)
 
             this.successMessage = data.message
-            setTimeout(() => {
-              this.$router.push("/admin/dashboard")
-            }, 2000);
+            if (data.role ==="Admin"){
+              setTimeout(() => {
+                this.$router.push("/admin/dashboard")
+              }, 2000);
+            }
+            else if(data.role=="Student"){
+              setTimeout(() => {
+                this.$router.push("/student/dashboard")
+              }, 2000);
+            }
 
           }
           else {

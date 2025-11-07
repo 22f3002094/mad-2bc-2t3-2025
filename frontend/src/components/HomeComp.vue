@@ -1,8 +1,15 @@
 <template>
-    <div>
-        <h2>{{ greetings }}</h2>
-        <button class="btn btn-primary" @click="buttonclick"> Click here</button>
+<div class="d-flex justify-content-center align-items-center vh-100">
+        <div>
+            <h3>{{ greetings }}</h3>
+            <div class="d-flex gap-3 mt-3">
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-primary">Register</a>
+            </div>
+        </div>
+        
     </div>
+
 </template>
 
 

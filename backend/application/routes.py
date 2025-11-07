@@ -25,7 +25,8 @@ def login():
         else:
             token = user.get_auth_token()
             print("Generated Token :" , token)
-            return {"name" :user.name , "token" : token , "message" : "Login Successful!!"} , 200
+
+            return {"name" :user.name , "token" : token ,"role" :user.roles[0].name , "message" : "Login Successful!!"} , 200
     else :
         return "hello world"
     
@@ -55,7 +56,7 @@ def register():
             return {"message" : "User registered successfully"} , 201
         
 @app.route("/subject" , methods = ["GET" , "POST" , "PUT" , "DELETE"])
-# @auth_required("token")
+@auth_required("token")
 def subject():
     if request.method =="GET" : 
         if request.args.get("query_type") =="all":
@@ -63,7 +64,7 @@ def subject():
             subs=[]
             for sub in subjects:
                 subs.append({"name" : sub.name , "description" : sub.description , "id" :sub.id})
-            return subs
+            return subs,200
         elif request.args.get("sub_id") :
             id = request.args.get("sub_id")
             subject = Subject.query.filter_by(id = id ).first()
@@ -96,7 +97,7 @@ def subject():
             db.session.commit()
             return {"name": subject.name , "description" : subject.description , "id" : subject.id } , 201
     elif request.method =="PUT":
-        id = request.json.get("sub_id")
+        id = request.json.get("id")
         sub_name = request.json.get("name")
         sub_desc = request.json.get("description")
 
@@ -123,3 +124,16 @@ def subject():
             return {"message" : "Subject deleted successfully"} , 200
         else:
             return {"message" : "Subject not found"} , 404
+        
+
+@app.route("/student" , methods=["GET" , "POST" ])
+@auth_required("token")
+def students():
+    if request.method =="GET":
+        if request.args.get("query_type") =="all":
+            role = Role.query.filter_by(name ="Student").first()
+            students=[]
+            for user in role.users: 
+                students.append({"id" : user.id , "name": user.name , "email":user.email, "status":"Active" if user.active else "Flagged" })
+
+            return students  , 200
