@@ -6,6 +6,7 @@ import RegisterComp from "./components/RegisterComp.vue";
 import StudentDash from './components/StudentDash.vue';
 import SubForm from './components/SubForm.vue';
 import QuizesComp from './components/QuizesComp.vue';
+import QuizForm from './components/QuizForm.vue';
 const routes = [
     {
         path: "/", component: HomeComp
@@ -29,11 +30,13 @@ const routes = [
         path: "/admin/editsubject/:id" , component: SubForm
     },
     {
-        path: "/admin/:subject/quizes" , component: QuizesComp
+        path: "/admin/:subname/quizes" , component: QuizesComp
 
-    }
+    },
+    {
+        path: "/admin/:subname/createquiz" , component: QuizForm
 
-
+    },
     
 ]
 

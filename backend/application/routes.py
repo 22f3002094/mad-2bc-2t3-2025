@@ -3,6 +3,7 @@ from flask import request , render_template
 from .models import User
 from flask_security import verify_password , auth_required, roles_required
 from flask_security import hash_password
+from datetime import datetime
 
 from .models import *
 @app.route("/")
@@ -137,3 +138,46 @@ def students():
                 students.append({"id" : user.id , "name": user.name , "email":user.email, "status":"Active" if user.active else "Flagged" })
 
             return students  , 200
+        
+@app.route("/quiz" , methods=["GET","POST" , "PUT" , "DELETE"] )
+@auth_required("token")
+def quiz():
+    if request.method=="GET":
+        if request.args.get("subname") :
+            subname = request.args.get("subname")
+            subobj = Subject.query.filter_by(name=subname ).first()
+            if not subobj:
+                return {"message":"Subject not found"} , 404
+            quizes = []
+            for quiz in subobj.quizes:
+                quizes.append({"id":quiz.id , "title" : quiz.title , "no_of_questions": len(quiz.questions) , "total_marks" : quiz.total_marks} )   
+            return quizes, 200
+    if request.method== "POST":
+        print("hello")
+        subname = request.args.get("sub_name")
+        subobj = Subject.query.filter_by(name=subname ).first()
+        
+        if not subobj:
+            return {"message":"Subject not found"} , 404
+        data = request.get_json()
+        data["date"] = datetime.strptime(data["date"] , "%Y-%m-%d")
+        newquiz  = Quiz(title = data["title"] ,total_marks=0, description = data["description"] , date = data["date"] , duration = data["duration"] , sub_id= subobj.id )
+        db.session.add(newquiz)
+        db.session.commit()
+        total_marks = 0
+        for question in data["questions"]:
+            new_ques = Question(statement = question["statement"] , option_a = question["option_a"] ,
+                                option_b  = question["option_b"] , option_c = question["option_c"] ,
+                                option_d = question["option_d"] , correct_option = question["correct_option"] ,
+                                marks = question["marks"] , quiz_id= newquiz.id )
+            total_marks+=int(question["marks"])
+            db.session.add(new_ques)
+            db.session.commit()
+        newquiz.total_marks = total_marks
+        db.session.commit()
+        return {"message" : "Quiz Create Succesfully" } , 201
+
+
+
+
+        

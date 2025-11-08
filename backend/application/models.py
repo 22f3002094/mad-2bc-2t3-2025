@@ -30,22 +30,16 @@ class Subject(db.Model):
     id = db.Column(db.Integer , primary_key= True)
     name = db.Column(db.String , nullable = False , unique = True)
     description = db.Column(db.String )
-    chapters = db.relationship("Chapter" , backref = "subject" )
+    quizes = db.relationship("Quiz" , backref = "subject" )
 
-class Chapter(db.Model):
-    __tablename__  ="chapter"
-    id = db.Column(db.Integer , primary_key= True)
-    name = db.Column(db.String , nullable = False)
-    description = db.Column(db.String )
-    subject_id = db.Column(db.Integer , db.ForeignKey("subject.id") , nullable = False)
-    quizes = db.relationship("Quiz" , backref = "chapter" )
+
 
 class Quiz(db.Model):
     __tablename__  ="quiz"
     id = db.Column(db.Integer , primary_key= True)
     title = db.Column(db.String , nullable = False)
     description = db.Column(db.String )
-    chapter_id = db.Column(db.Integer , db.ForeignKey("chapter.id") , nullable = False)
+    sub_id = db.Column(db.Integer , db.ForeignKey("subject.id") , nullable = False)
     total_marks = db.Column(db.Integer , nullable = False)
     date  = db.Column(db.DateTime)
     duration = db.Column(db.Integer ) 

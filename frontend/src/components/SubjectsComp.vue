@@ -26,7 +26,7 @@
                             <div class="d-flex gap-3">
                                 <router-link :to="'/admin/editsubject/'+subject.id" class="btn btn-primary">Edit</router-link>
                                 <button class="btn btn-danger">Delete</button>
-                                <button class="btn btn-primary">View</button>
+                                <router-link :to="'/admin/'+subject.name+'/quizes'" class="btn btn-primary">View</router-link>
                             </div>
 
                         </td>
