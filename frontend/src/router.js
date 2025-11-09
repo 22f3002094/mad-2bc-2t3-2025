@@ -37,6 +37,9 @@ const routes = [
         path: "/admin/:subname/createquiz" , component: QuizForm
 
     },
+    {
+        path: "/admin/editquiz/:quiz_id" , component: QuizForm
+    },
     
 ]
 

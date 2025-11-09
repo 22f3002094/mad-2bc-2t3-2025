@@ -52,7 +52,7 @@
                         <input type="text" class="form-control" v-model="quizdata.duration" id="floatingduration" required>
                         <label for="floatingduration">Quiz Duration</label>
                     </div>
-                    <button class="btn btn-primary" @click="createquiz">Create</button>
+                    <button class="btn btn-primary" @click="quiz_id?editquiz() : createquiz()">{{ quiz_id?"Edit" : "Create" }}</button>
 
                 </div>
 
@@ -133,15 +133,6 @@ export default {
                 date: "",
                 duration: "",
                 questions: [
-                    {
-                        "statement": "what is your Name? What do you do?",
-                        "option_a": "Hello",
-                        "option_b": "How",
-                        "option_c": "are",
-                        "option_d": "you?",
-                        "correct_option": "1",
-                        "marks": "2"
-                    }
                 ]
             },
             question: {
@@ -156,44 +147,45 @@ export default {
             errorMessage: "",
             successMessage: "",
             subname: "",
-            modalinstance:null
+            modalinstance:null,
+            quiz_id :null
         }
     },
     async mounted() {
     
         this.subname = this.$route.params.subname
-    //     console.log(this.sub_id)
-    //     if (this.sub_id) {
-    //       try {
-    //         const response = await fetch(`http://127.0.0.1:5000/subject?sub_id=${this.sub_id}`,
-    //           {
-    //             method: "GET",           
-    //             headers: {
-    //               "Content-Type": "application/json",
-    //               "Authentication-Token": localStorage.getItem("token")
-    //             }
-    //           }
-    //         )
-    //         const data = await response.json()
-    //         if (response.status == 404) {
-    //           this.$router.push("/admin/dashboard")
-    //         }
-    //         else if (response.status === 401) {
-    //           this.$router.push("/login")
-    //         }
-    //         else if (response.status === 500) {
-    //           new Error("internal server error")
-    //         }
-    //         else if (response.status === 200) {
+        this.quiz_id = this.$route.params.quiz_id
+        console.log(this.quiz_id)
+        if (this.quiz_id) {
+          try {
+            const response = await fetch(`http://127.0.0.1:5000/quiz?quiz_id=${this.quiz_id}`,
+              {
+                method: "GET",           
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authentication-Token": localStorage.getItem("token")
+                }
+              }
+            )
+            const data = await response.json()
+            if (response.status == 404) {
+              this.$router.push("/admin/dashboard")
+            }
+            else if (response.status === 401) {
+              this.$router.push("/login")
+            }
+            else if (response.status === 500) {
+              new Error("internal server error")
+            }
+            else if (response.status === 200) {
 
-    //           this.subjectdata=data
-    //           console.log(this.subjectdata)
-    //         }
-    //       }
-    //       catch (e) {
-    //         this.errorMessage = "something went wrong, Try again"
-    //       }
-    //     }
+              this.quizdata=data
+            }
+          }
+          catch (e) {
+            this.errorMessage = "something went wrong, Try again"
+          }
+        }
 
       },
 
@@ -283,45 +275,45 @@ export default {
             }
 
         },
-        // async edit () {
+        async editquiz() {
 
-        //   try {
-        //     const response = await fetch("http://127.0.0.1:5000/subject",
-        //       {
-        //         method: "PUT",
-        //         body: JSON.stringify(this.subjectdata),
-        //         headers: {
-        //           "Content-Type": "application/json",
-        //           "Authentication-Token": localStorage.getItem("token")
-        //         }
-        //       }
-        //     )
-        //     const data = response.json()
-        //     if (response.status == 409) {
-        //       this.errorMessage = data.message
-        //     }
-        //     else if (response.status === 404) {
-        //       this.$router.push("/admin/dashboard")
-        //     }
-        //     else if (response.status === 401) {
-        //       this.$router.push("/login")
-        //     }
-        //     else if (response.status === 500) {
-        //       new Error("internal server error")
-        //     }
-        //     else if (response.status === 200) {
-        //       this.successMessage = "Subject is updated"
-        //       setTimeout(() => {
-        //         this.$router.push("/admin/dashboard")
-        //       }, 2000);
+          try {
+            const response = await fetch("http://127.0.0.1:5000/quiz?quiz_id="+this.quiz_id,
+              {
+                method: "PUT",
+                body: JSON.stringify(this.quizdata),
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authentication-Token": localStorage.getItem("token")
+                }
+              }
+            )
+            const data = response.json()
+            if (response.status == 409) {
+              this.errorMessage = data.message
+            }
+            else if (response.status === 404) {
+              this.$router.push("/admin/dashboard")
+            }
+            else if (response.status === 401) {
+              this.$router.push("/login")
+            }
+            else if (response.status === 500) {
+              new Error("internal server error")
+            }
+            else if (response.status === 200) {
+              this.successMessage = "Quiz is updated"
+              setTimeout(() => {
+                this.$router.push("/admin/dashboard")
+              }, 2000);
 
-        //     }
-        //   }
-        //   catch (e) {
-        //     this.errorMessage = "something went wrong, Try again"
-        //   }
+            }
+          }
+          catch (e) {
+            this.errorMessage = "something went wrong, Try again"
+          }
 
-        // },
+        },
 
     }
 

@@ -17,7 +17,7 @@
                             <h5>{{ quiz.title }}</h5>
                             <div class="d-flex gap-2 ">
                                 <router-link :to="'/admin/'+sub_name+'/createquiz'" class="btn btn-primary">View</router-link>
-                                <button class="btn btn-info">Edit</button>
+                                <router-link :to="'/admin/editquiz/'+ quiz.id" class="btn btn-info">Edit</router-link>
 
                                 <button class="btn btn-danger">Delete</button>
                             </div>

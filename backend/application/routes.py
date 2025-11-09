@@ -152,6 +152,26 @@ def quiz():
             for quiz in subobj.quizes:
                 quizes.append({"id":quiz.id , "title" : quiz.title , "no_of_questions": len(quiz.questions) , "total_marks" : quiz.total_marks} )   
             return quizes, 200
+        if request.args.get("quiz_id"):
+            id = request.args.get("quiz_id")
+            quiz = Quiz.query.filter_by(id = id).first()
+            if not quiz:
+                return {"message" : "Quiz not found"} , 404
+            quiz_data = {"title" : quiz.title, "id" : quiz.id , "description" : quiz.description,
+                         "total_marks" :quiz.total_marks, "date" :datetime.strftime(quiz.date , "%Y-%m-%d"), "duration" : quiz.duration,
+                         } 
+            quiz_data["questions"] = []
+            for question in quiz.questions:
+                quiz_data["questions"].append({"id": question.id , "statement" : question.statement,
+                                              "option_a" :question.option_a ,
+                                                "option_b" : question.option_b , "option_c" : question.option_c ,
+                                                "option_d": question.option_d , "correct_option" : question.correct_option ,
+                                                "marks" : question.marks})
+            print(quiz_data)
+            return quiz_data,200
+
+            
+
     if request.method== "POST":
         print("hello")
         subname = request.args.get("sub_name")
@@ -176,6 +196,51 @@ def quiz():
         newquiz.total_marks = total_marks
         db.session.commit()
         return {"message" : "Quiz Create Succesfully" } , 201
+    if request.method=="PUT":
+        data =request.get_json()
+        id = request.args.get("quiz_id")
+        quizobj = Quiz.query.filter_by(id = id).first()
+        if data["title"]:
+            quizobj.title = data["title"]
+        if data["description"]:
+            quizobj.description = data["description"]
+        if data["date"]:
+            data["date"] = datetime.strptime(data["date"] , "%Y-%m-%d")
+            quizobj.date = data["date"]
+        if data["duration"]:
+            quizobj.duration = data["duration"]
+        total_marks = 0
+        for existing_question in quizobj.questions:
+            for question in data["questions"]:
+                if question.get("id") and question.get("id") == existing_question.id:
+                    if question["statement"]:
+                        existing_question.statement = question["statement"]
+                    if question["option_a"]:
+                        existing_question.option_a  = question["option_a"]
+                    if question["option_b"]:
+                        existing_question.option_b  = question["option_b"]
+                    if question["option_c"]:
+                        existing_question.option_c  = question["option_c"]
+                    if question["option_d"]:
+                        existing_question.option_d  = question["option_d"]
+                    if question["correct_option"]:
+                        existing_question.correct_option  = question["correct_option"]
+                    if question["marks"]:
+                        existing_question.marks  = question["marks"]
+                        total_marks += int(question["marks"])
+                    db.session.commit()
+                elif not question.get("id"):
+                    new_ques = Question(statement = question["statement"] , option_a = question["option_a"] ,
+                                option_b  = question["option_b"] , option_c = question["option_c"] ,
+                                option_d = question["option_d"] , correct_option = question["correct_option"] ,
+                                marks = question["marks"] , quiz_id= quizobj.id )
+                    db.session.add(new_ques)
+                    db.session.commit()
+                    total_marks += int(question["marks"])
+                
+        quizobj.total_marks = total_marks
+        db.session.commit()
+        return "xyz" , 200
 
 
 
