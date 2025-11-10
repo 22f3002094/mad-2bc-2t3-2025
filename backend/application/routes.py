@@ -150,7 +150,7 @@ def quiz():
                 return {"message":"Subject not found"} , 404
             quizes = []
             for quiz in subobj.quizes:
-                quizes.append({"id":quiz.id , "title" : quiz.title , "no_of_questions": len(quiz.questions) , "total_marks" : quiz.total_marks} )   
+                quizes.append({"id":quiz.id ,"date" : datetime.strftime(quiz.date , "%Y-%m-%d"), "title" : quiz.title , "no_of_questions": len(quiz.questions) , "total_marks" : quiz.total_marks} )   
             return quizes, 200
         if request.args.get("quiz_id"):
             id = request.args.get("quiz_id")
@@ -244,5 +244,42 @@ def quiz():
 
 
 
+@app.route("/quiz/attempt" , methods=["POST" , "GET"]) 
+def attempt_quiz():
+    if request.method=="GET":
+        if request.args.get("quiz_id"):
+            id = request.args.get("quiz_id")
+            quiz = db.session.query(Quiz).filter_by(id = id).first()
+            if not quiz:
+                return {"message" : "Quiz not found"} , 404
+            if quiz.date and quiz.date.date() ==datetime.now().date():
+                quiz_data = {"title" : quiz.title, "id" : quiz.id , "description" : quiz.description,
+                         "total_marks" :quiz.total_marks, "date" :datetime.strftime(quiz.date , "%Y-%m-%d"), "duration" : quiz.duration,
+                         } 
+                quiz_data["questions"] = []
+                for question in quiz.questions:
+                    quiz_data["questions"].append({"id": question.id , "statement" : question.statement,
+                                                "option_a" :question.option_a ,
+                                                    "option_b" : question.option_b , "option_c" : question.option_c ,
+                                                    "option_d": question.option_d , "correct_option" : question.correct_option ,
+                                                    "marks" : question.marks})
 
-        
+                return quiz_data , 200
+            elif quiz.date and quiz.date.date() <=datetime.now().date():
+                return {"message" : "Due date passed, Can't attempt the quiz"} , 403 
+            elif quiz.date and quiz.date.date() >=datetime.now().date():
+                return {"message" : f"Can't Attempt the Quiz early. Come back on {quiz.date.date()}"} , 403 
+    if request.method=="POST":
+        attempt_data = request.get_json()
+        quiz_id = attempt_data["quiz_id"]
+        options_selected = attempt_data["options_selected"]
+        print(options_selected)
+        quiz =Quiz.query.filter_by(id = quiz_id).first()
+        if not quiz:
+            return {"message" : "Quiz not found"} , 404
+        total_score = 0
+        for i in range(len(quiz.questions)):
+            if quiz.questions[i].correct_option == options_selected[i]:
+                total_score += quiz.questions[i].marks
+        print(total_score)
+        return {"score" : total_score},200

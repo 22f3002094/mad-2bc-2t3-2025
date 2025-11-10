@@ -7,6 +7,7 @@ import StudentDash from './components/StudentDash.vue';
 import SubForm from './components/SubForm.vue';
 import QuizesComp from './components/QuizesComp.vue';
 import QuizForm from './components/QuizForm.vue';
+import QuizAttempt from './components/QuizAttempt.vue';
 const routes = [
     {
         path: "/", component: HomeComp
@@ -19,9 +20,6 @@ const routes = [
     },
     {
         path : "/admin/dashboard" , component: AdminDash
-    },
-    {
-        path : "/student/dashboard" , component: StudentDash
     },
     {
         path: "/admin/createsubject" , component: SubForm
@@ -40,6 +38,16 @@ const routes = [
     {
         path: "/admin/editquiz/:quiz_id" , component: QuizForm
     },
+    {
+        path : "/student/dashboard" , component: StudentDash
+    },
+    {
+        path: "/student/:subname/quizes" , component: QuizesComp
+    },
+    {
+        path: "/student/attemptquiz/:quiz_id" , component: QuizAttempt
+
+    }
     
 ]
 

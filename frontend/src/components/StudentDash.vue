@@ -1,10 +1,11 @@
 <template>
     <Navbar></Navbar>
-    <h2>{{ greetings }}</h2>
+    <SubjectsComp></SubjectsComp>
     
 </template>
 <script>
 import Navbar from './Navbar.vue';
+import SubjectsComp from './SubjectsComp.vue';
 export default {
     name:"StudentDash",
     data(){
@@ -13,7 +14,8 @@ export default {
         }
     },
     components:{
-        Navbar
+        Navbar,
+        SubjectsComp
     }
 }
 

@@ -4,7 +4,7 @@
         <div class="card-header ">
             <div class="d-flex">
                 <h3>{{ sub_name }} Quizzes</h3>
-                <router-link :to="'/admin/'+sub_name+'/createquiz'" class="btn btn-primary ms-auto"><i class="bi bi-patch-plus"></i>
+                <router-link v-if="role === 'Admin'" :to="'/admin/'+sub_name+'/createquiz'" class="btn btn-primary ms-auto"><i class="bi bi-patch-plus"></i>
                     Create</router-link>
             </div>
 
@@ -15,11 +15,12 @@
                     <div class="card text-center">
                         <div class="card-body">
                             <h5>{{ quiz.title }}</h5>
+                            <p class="text-muted">Date : {{ quiz.date }}</p>
                             <div class="d-flex gap-2 ">
-                                <router-link :to="'/admin/'+sub_name+'/createquiz'" class="btn btn-primary">View</router-link>
-                                <router-link :to="'/admin/editquiz/'+ quiz.id" class="btn btn-info">Edit</router-link>
+                                <router-link :to="role==='Admin' ? '/admin/'+sub_name+'/viewquiz' : '/student/attemptquiz/'+ quiz.id" class="btn btn-primary">View</router-link>
+                                <router-link v-if="role === 'Admin'" :to="'/admin/editquiz/'+ quiz.id" class="btn btn-info">Edit</router-link>
 
-                                <button class="btn btn-danger">Delete</button>
+                                <button v-if="role === 'Admin'" class="btn btn-danger">Delete</button>
                             </div>
 
                         </div>
@@ -46,11 +47,13 @@ export default {
         return {
             greetings: "Welcome to quiz master",
             sub_name: "",
-            quizzes: []
+            quizzes: [],
+            role: "",
         }
     },
     async mounted() {
         this.sub_name = this.$route.params.subname
+        this.role= localStorage.getItem("role")
         if (this.sub_name) {
             try {
                 const response = await fetch(`http://127.0.0.1:5000/quiz?subname=${this.sub_name}`,

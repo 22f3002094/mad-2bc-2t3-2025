@@ -3,7 +3,7 @@
         <div class="card-header ">
             <div class="d-flex">
                 <h3>Subjects</h3>
-                <router-link to="/admin/createsubject" class="btn btn-primary ms-auto"><i class="bi bi-patch-plus"></i>
+                <router-link v-if="role === 'Admin'" to="/admin/createsubject" class="btn btn-primary ms-auto"><i class="bi bi-patch-plus"></i>
                     Create</router-link>
             </div>
 
@@ -25,10 +25,10 @@
                         <td>{{ subject.description }}</td>
                         <td>
                             <div class="d-flex gap-3">
-                                <router-link :to="'/admin/editsubject/' + subject.id"
+                                <router-link v-if="role === 'Admin'" :to="'/admin/editsubject/' + subject.id"
                                     class="btn btn-primary">Edit</router-link>
-                                <button class="btn btn-danger" @click="showdelete(index)">Delete</button>
-                                <router-link :to="'/admin/' + subject.name + '/quizes'"
+                                <button v-if="role === 'Admin'" class="btn btn-danger" @click="showdelete(index)">Delete</button>
+                                <router-link :to="role==='Admin' ? '/admin/' + subject.name + '/quizes' : '/student/' + subject.name + '/quizes'"
                                     class="btn btn-primary">View</router-link>
                             </div>
 
@@ -68,11 +68,12 @@ export default {
         return {
             subjects: [],
             tobedeletesub: {},
-            modalinstance: null
+            modalinstance: null,
+            role: "",
         }
     },
     async mounted() {
-
+        this.role = localStorage.getItem("role")
         try {
             const response = await fetch("http://127.0.0.1:5000/subject?query_type=all",
                 {
