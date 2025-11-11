@@ -64,6 +64,7 @@ class Scores(db.Model):
     user_id = db.Column(db.Integer , db.ForeignKey("user.id") , nullable = False)
     quiz_id = db.Column(db.Integer , db.ForeignKey("quiz.id") , nullable = False)
     score = db.Column(db.Integer , nullable = False)
+    date_attempted = db.Column(db.DateTime)
     attempt  = db.Column(db.JSON , nullable = True)
 
 

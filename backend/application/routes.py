@@ -2,7 +2,7 @@ from flask import current_app as app
 from flask import request , render_template
 from .models import User
 from flask_security import verify_password , auth_required, roles_required
-from flask_security import hash_password
+from flask_security import hash_password , current_user
 from datetime import datetime
 
 from .models import *
@@ -245,6 +245,7 @@ def quiz():
 
 
 @app.route("/quiz/attempt" , methods=["POST" , "GET"]) 
+@auth_required("token")
 def attempt_quiz():
     if request.method=="GET":
         if request.args.get("quiz_id"):
@@ -253,6 +254,9 @@ def attempt_quiz():
             if not quiz:
                 return {"message" : "Quiz not found"} , 404
             if quiz.date and quiz.date.date() ==datetime.now().date():
+                score = Scores.query.filter_by(user_id = current_user.id , quiz_id = quiz.id).first()
+                if score:
+                    return {"message" : "You have already attempted this quiz"} , 403
                 quiz_data = {"title" : quiz.title, "id" : quiz.id , "description" : quiz.description,
                          "total_marks" :quiz.total_marks, "date" :datetime.strftime(quiz.date , "%Y-%m-%d"), "duration" : quiz.duration,
                          } 
@@ -281,5 +285,39 @@ def attempt_quiz():
         for i in range(len(quiz.questions)):
             if quiz.questions[i].correct_option == options_selected[i]:
                 total_score += quiz.questions[i].marks
-        print(total_score)
-        return {"score" : total_score},200
+        newscore = Scores(user_id = current_user.id , quiz_id = quiz_id , score = total_score , attempt = options_selected ,date_attempted = datetime.now())
+        db.session.add(newscore)
+        db.session.commit()
+        return {"message" : "Quiz Attempted Successfully" , "score" : total_score } , 201
+
+
+@app.route("/score" , methods=["GET"])
+@auth_required("token")
+def scores():
+    if request.method=="GET":
+        if request.args.get("score_id"):
+            score_id = request.args.get("score_id")
+            score = Scores.query.filter_by(id = score_id , user_id = current_user.id).first()
+            if not score:
+                return {"message" : "Score not found"} , 404
+            quiz = Quiz.query.filter_by(id = score.quiz_id).first()
+            quiz_data = {"title" : quiz.title, "id" : quiz.id , "description" : quiz.description,
+                         "total_marks" :quiz.total_marks, 
+                         } 
+            quiz_data["questions"] = []
+            for question in quiz.questions:
+                quiz_data["questions"].append({"id": question.id , "statement" : question.statement,
+                                            "option_a" :question.option_a ,
+                                                "option_b" : question.option_b , "option_c" : question.option_c ,
+                                                "option_d": question.option_d , "correct_option" : question.correct_option ,
+                                                "marks" : question.marks})
+            quiz_data["user_attempt"] = score.attempt
+            quiz_data["user_score"] = score.score
+            return quiz_data , 200  
+        else:
+            scores = Scores.query.filter_by(user_id = current_user.id).all()
+            scores_list = []
+            for score in scores:
+                quiz = Quiz.query.filter_by(id = score.quiz_id).first()
+                scores_list.append({"id" : score.id, "quiz_title" : quiz.title , "score" : score.score , "date_attempted": datetime.strftime(score.date_attempted , "%Y-%m-%d")})
+            return scores_list , 200

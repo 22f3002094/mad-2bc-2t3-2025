@@ -77,7 +77,7 @@ export default {
                     "method": "GET",
                     "headers": {
                         "Content-Type": "application/json",
-                        "Authorization-Token": localStorage.getItem("token")
+                        "Authentication-Token": localStorage.getItem("token")
                     }
 
                 }
@@ -119,15 +119,15 @@ export default {
                         "body": JSON.stringify(this.attempt_data),
                         "headers": {
                             "Content-Type": "application/json",
-                            "Authorization-Token": localStorage.getItem("token")
+                            "Authentication-Token": localStorage.getItem("token")
                         }
 
                     }
                 )
                 const data = await response.json()
-                if (response.status == 200) {
+                if (response.status == 201) {
                     
-                    console.log(data.score)
+                    this.$router.push("/student/dashboard")
                 }
                 if (response.status == 403) {
                     this.message = data.message
