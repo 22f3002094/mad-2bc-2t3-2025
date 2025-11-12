@@ -3,6 +3,8 @@ from application.models import db , User ,Role
 from application.config import LocalConfig
 from flask_security import Security,SQLAlchemyUserDatastore
 from flask_cors import CORS
+from application.celery_init import celery_init_app
+
 def create_app():
     app = Flask(__name__ , template_folder = "../frontend_cdn" , static_folder="../frontend_cdn")
     app.config.from_object(LocalConfig)
@@ -22,6 +24,11 @@ def create_app():
     return app
 
 app = create_app()
+
+celery = celery_init_app(app)
+
+
+
 from application.routes import *
 from application.create_initial_data import *
 if __name__ == "__main__":

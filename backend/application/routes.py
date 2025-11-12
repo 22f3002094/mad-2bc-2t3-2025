@@ -4,6 +4,8 @@ from .models import User
 from flask_security import verify_password , auth_required, roles_required
 from flask_security import hash_password , current_user
 from datetime import datetime
+from .task import add_together
+from celery.result import AsyncResult
 
 from .models import *
 @app.route("/")
@@ -321,3 +323,24 @@ def scores():
                 quiz = Quiz.query.filter_by(id = score.quiz_id).first()
                 scores_list.append({"id" : score.id, "quiz_title" : quiz.title , "score" : score.score , "date_attempted": datetime.strftime(score.date_attempted , "%Y-%m-%d")})
             return scores_list , 200
+
+
+
+@app.route("/addtask" , methods=["GET"]) 
+# @auth_required("token")
+def addtask():
+    if request.method=="GET":
+        a = request.args.get("a")
+        b = request.args.get("b")
+        result  = add_together.delay(int(a) , int(b))
+        return {"result": result.id}
+    
+@app.route("/taskstatus" , methods=["GET"])
+def taskstatus():
+    id = request.args.get("task_id")
+    result = AsyncResult(id)
+    return {
+        "ready": result.ready(),
+        "successful": result.successful(),
+        "value": result.result if result.ready() else None,
+    }
