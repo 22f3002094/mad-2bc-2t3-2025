@@ -4,7 +4,8 @@ from application.config import LocalConfig
 from flask_security import Security,SQLAlchemyUserDatastore
 from flask_cors import CORS
 from application.celery_init import celery_init_app
-
+from application.task import send_admin_monthly_report
+from celery import Celery
 def create_app():
     app = Flask(__name__ , template_folder = "../frontend_cdn" , static_folder="../frontend_cdn")
     app.config.from_object(LocalConfig)
@@ -26,8 +27,12 @@ def create_app():
 app = create_app()
 
 celery = celery_init_app(app)
-
-
+celery.autodiscover_tasks(['application.task'])
+from celery.schedules import crontab
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender: Celery, **kwargs):
+    sender.add_periodic_task(crontab(day_of_month="13" , hour = "6" , minute = "30" ), send_admin_monthly_report.s(), name='send admin monthly report every 10 seconds')
+    
 
 from application.routes import *
 from application.create_initial_data import *

@@ -1,10 +1,10 @@
 from flask import current_app as app
-from flask import request , render_template
+from flask import request , render_template , send_from_directory
 from .models import User
 from flask_security import verify_password , auth_required, roles_required
 from flask_security import hash_password , current_user
 from datetime import datetime
-from .task import add_together
+from .task import add_together , admin_download_csv
 from celery.result import AsyncResult
 
 from .models import *
@@ -344,3 +344,19 @@ def taskstatus():
         "successful": result.successful(),
         "value": result.result if result.ready() else None,
     }
+
+
+@app.route("/admin/export_csv" , methods=["GET"])
+def export_csv():
+    result = admin_download_csv.delay()
+    return {"task_id" : result.id} , 200
+
+
+@app.route("/admin/download_csv" , methods=["GET"])
+def download_csv():
+    task_id = request.args.get("task_id")
+    result = AsyncResult(task_id)
+    if not result.ready():
+        return {"ready":False} , 202
+    
+    return send_from_directory(directory="./static" , path=result.result.split("/")[2])
