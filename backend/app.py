@@ -6,11 +6,13 @@ from flask_cors import CORS
 from application.celery_init import celery_init_app
 from application.task import send_admin_monthly_report
 from celery import Celery
+from application.cache import cache
 def create_app():
     app = Flask(__name__ , template_folder = "../frontend_cdn" , static_folder="../frontend_cdn")
     app.config.from_object(LocalConfig)
     db.init_app(app)
     CORS(app)
+    cache.init_app(app)
     datastore = SQLAlchemyUserDatastore(db , User ,  Role)
     app.security =  Security(app , datastore = datastore , register_blueprint = False)
     @app.security.unauthn_handler

@@ -6,7 +6,7 @@ from flask_security import hash_password , current_user
 from datetime import datetime
 from .task import add_together , admin_download_csv
 from celery.result import AsyncResult
-
+import random
 from .models import *
 @app.route("/")
 def index():
@@ -360,3 +360,10 @@ def download_csv():
         return {"ready":False} , 202
     
     return send_from_directory(directory="./static" , path=result.result.split("/")[2])
+
+from .cache import cache
+@app.route("/getnumber")
+@cache.cached(timeout = 3600)
+def get_number():
+    
+    return 5
